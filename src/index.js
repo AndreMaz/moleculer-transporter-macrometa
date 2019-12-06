@@ -12,7 +12,27 @@ const FabricClient = require("jsc8");
 const { MoleculerError } = require("moleculer").Errors;
 const BaseTransporter = require("moleculer").Transporters.Base;
 
+// Imports to add some IntelliSense
+const { Fabric, Stream } = require("jsc8"); // eslint-disable-line no-unused-vars
+
+/**
+ * Transporter for Macrometa
+ *
+ * More info: https://dev.macrometa.io/docs/streams-2
+ *
+ * @class MacrometaTransporter
+ * 
+ * @extends {BaseTransporter}
+ */
 class MacrometaTransporter extends BaseTransporter {
+
+	/**
+	 * Creates an instance of MacrometaTransporter.
+	 *
+	 * @param {any} opts
+	 *
+	 * @memberof MacrometaTransporter
+	 */
 	constructor(opts) {
 		super(opts);
 
@@ -24,7 +44,12 @@ class MacrometaTransporter extends BaseTransporter {
 
 		this.streams = {};
 	}
-
+	
+	/**
+	 * Init transporter
+	 * 
+	 * @memberof MacrometaTransporter
+	 */
 	init() {
 		super.init(...arguments);
 
@@ -39,6 +64,11 @@ class MacrometaTransporter extends BaseTransporter {
 		this.dcName = url.split("://")[1];
 	}
 
+	/**
+	 * Connect to the transporter server
+	 *
+	 * @memberof MacrometaTransporter
+	 */
 	async connect() {
 		/**
 		 * @type {Fabric}
@@ -65,6 +95,11 @@ class MacrometaTransporter extends BaseTransporter {
 		this.onConnected();
 	}
 
+	/**
+	 * Disconnect from the transporter server
+	 *
+	 * @memberof MacrometaTransporter
+	 */
 	disconnect() {
 		if (this.fabric) {
 			return this.fabric.close();
@@ -72,6 +107,14 @@ class MacrometaTransporter extends BaseTransporter {
 		return Promise.resolve();
 	}
 
+	/**
+	 * Subscribe to a command
+	 *
+	 * @param {String} cmd
+	 * @param {String} nodeID
+	 *
+	 * @memberof MacrometaTransporter
+	 */
 	async subscribe(cmd, nodeID) {
 		const t = this.getTopicName(cmd, nodeID);
 
@@ -109,6 +152,14 @@ class MacrometaTransporter extends BaseTransporter {
 		});
 	}
 
+	/**
+	 * Gets producer by topic
+	 * 
+	 * @param {string} topic
+	 * @returns {Stream}
+	 * 
+	 * @memberof MacrometaTransporter
+	 */
 	async getProducerStream(topic) {
 		let stream = this.streams[topic];
 		if (stream)
@@ -120,6 +171,15 @@ class MacrometaTransporter extends BaseTransporter {
 		return stream;
 	}
 
+	/**
+	 * Send data buffer.
+	 *
+	 * @param {String} topic
+	 * @param {Buffer} data
+	 * @param {Object} meta
+	 *
+	 * @memberof MacrometaTransporter 
+	 */
 	async send(topic, data, meta) {
 		/* istanbul ignore next*/
 		if (!this.fabric) return Promise.resolve();
